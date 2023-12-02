@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page person</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('select[name="bookId"]').select2();
+        });
+    </script>
+</head>
+<body>
+
+<p th:text="${infoAboutPerson.getUserName()}"></p>
+<p th:text="${infoAboutPerson.getLastName() + ' ' + infoAboutPerson.getFirstName() + ' ' + infoAboutPerson.getPartherName()}"></p>
+
+    <form th:method="PATCH" th:action="@{'/people/admin/'+${infoAboutPerson.getPersonId()}+'/assign'}">
+        <label>
+            <select name="bookId">
+                <option th:each="book : ${books}" th:value="${book.getBookId()}" th:text="${book.getTitle()}"></option>
+            </select>
+        </label>
+
+        <input th:if="${!exceededTenBooks}" type="submit" value="Assign">
+        <input th:if="${exceededTenBooks}" type="submit" value="Assign" disabled="disabled">
+        <span th:if="${exceededTenBooks}" style="color: grey">The user cannot read more than 10 books</span>
+        <span th:if="${bookIsOutOfStock}" style="color: grey">The number of copies of the book is 0</span>
+    </form>
+
+<br>
+
+<div th:if="${numberOfBooks != 0 && numberOfBooks != null}" >
+    <p th:text="${'Number of books: ' + numberOfBooks}"></p>
+    <br>
+</div>
+
+<div th:if="${borrowedBooks.isEmpty()}">
+    <p th:text="${'This person has no books'}"></p>
+    <br>
+</div>
+
+<div th:if="${!borrowedBooks.isEmpty()}">
+    <b th:text="${'Borrowed books:'}"></b>
+    <div th:each="book : ${borrowedBooks}">
+        <a th:href="@{'/books/admin/pageBookForPerson/' + ${infoAboutPerson.getPersonId()} + '/' + ${book.getBook().getBookId()}}">
+            <p th:text="${book.getBook().getTitle()}"
+            th:style="${currentDate.compareTo(book.getDateEnd()) > 0 ? 'color: red;' : ''}"></p>
+        </a>
+    </div>
+</div>
+
+<br>
+
+<div th:if="${totalFine != 0 && totalFine != null}" >
+    <p th:text="${'Total fine: ' + totalFine}"></p>
+</div>
+
+<hr>
+
+<div th:if="${!borrowedBooks.isEmpty()}">
+<form th:method="GET" th:action="@{'/people/admin/return/' + ${infoAboutPerson.getPersonId()}}">
+    <input type="submit" value="Return books">
+</form>
+</div>
+
+<br>
+
+<form th:method="DELETE" th:action="@{/people/admin/{id}(id=${infoAboutPerson.getPersonId()})}">
+    <input type="submit" value="Block account">
+</form>
+
+<div th:if="${hasThisPersonBeenDeleted != null}">
+    <p th:if="${cause == 'Not all books have been returned'}" th:text="${'To block an account all books must be returned'}" style="color: gray;"></p>
+    <div th:if="${cause == 'Foreign key constraint'}" style="color: gray;">
+        <p th:text="${'If you want to block this account, you must delete all log entries for this client from journal'}"></p>
+        <form th:method="DELETE" th:action="@{/people/admin/entries/{id}(id=${infoAboutPerson.getPersonId()})}">
+            <input type="submit" value="Delete entries"></form>
+    </div>
+</div>
+
+</body>
+</html>

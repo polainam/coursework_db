@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page person</title>
+</head>
+<body>
+
+<p th:text="${infoAboutPerson.getUserName()}"></p>
+<p th:text="${infoAboutPerson.getLastName() + ' ' + infoAboutPerson.getFirstName() + ' ' + infoAboutPerson.getPartherName()}"></p>
+
+<div th:if="${borrowedBooks.isEmpty()}">
+    <p th:text="${'You did not take a single book'}"></p>
+
+</div>
+
+<div th:if="${!borrowedBooks.isEmpty()}">
+    <b th:text="${'Borrowed books:'}"></b>
+    <div th:each="book : ${borrowedBooks}">
+        <a th:href="@{'/books/user/' + ${book.getBookId()}}">
+            <p th:text="${book.getBook().getTitle()}"
+               th:style="${currentDate.compareTo(book.getDateEnd()) > 0 ? 'color: red;' : ''}"></p>
+        </a>
+    </div>
+</div>
+
+<div th:if="${totalFine != null && totalFine != 0}" >
+    <p th:text="${'Total fine: ' + totalFine}"></p>
+    <br>
+</div>
+
+<hr>
+
+<form th:method="GET" th:action="@{'/people/user/' + ${infoAboutPerson.getPersonId()} + '/edit'}">
+    <input type="submit" value="Edit">
+</form>
+
+<br>
+
+<form th:method="POST" th:action="@{/logout}">
+    <input type="submit" value="Logout">
+</form>
+
+<br>
+
+<form th:method="DELETE" th:action="@{'/people/user/' + ${infoAboutPerson.getPersonId()}}">
+    <input type="submit" value="Delete account" th:disabled="${numberOfBooksForPerson != 0}">
+</form>
+<th:block th:if="${numberOfBooksForPerson != 0}">
+    <p style="color: grey;">To delete your account, you must return all books</p>
+</th:block>
+
+</body>
+</html>

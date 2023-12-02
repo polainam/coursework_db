@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit person</title>
+</head>
+<body>
+
+<form th:method="PATCH" th:action="@{'/people/user/' + ${editPerson.getPersonId()}}" th:object="${editPerson}">
+<label for="userName">Enter username: </label>
+  <input type="text" th:field="*{userName}" id="userName"/>
+  <div style="color:red" th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"></div>
+  <br/>
+
+  <label for="password">Enter password: </label>
+  <input type="password" th:field="*{password}" id="password"/>
+  <div style="color:red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+  <br/>
+
+  <label for="firstName">Enter first name: </label>
+  <input type="text" th:field="*{firstName}" id="firstName"/>
+  <div style="color:red" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+  <br/>
+
+  <label for="lastName">Enter last name: </label>
+  <input type="text" th:field="*{lastName}" id="lastName"/>
+  <div style="color:red" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+  <br/>
+
+  <label for="partherName">Enter parther name: </label>
+  <input type="text" th:field="*{partherName}" id="partherName"/>
+  <div style="color:red" th:if="${#fields.hasErrors('partherName')}" th:errors="*{partherName}"></div>
+  <br/>
+
+  <label for="passportSeria">Enter passport seria: </label>
+  <input type="text" th:field="*{passportSeria}" id="passportSeria"/>
+  <div style="color:red" th:if="${#fields.hasErrors('passportSeria')}" th:errors="*{passportSeria}"></div>
+  <br/>
+
+  <label for="passportNum">Enter passport number: </label>
+  <input type="text" th:field="*{passportNum}" id="passportNum"/>
+  <div style="color:red" th:if="${#fields.hasErrors('passportNum')}" th:errors="*{passportNum}"></div>
+  <br/>
+
+  <input type="submit" value="Update"/>
+</form>
+
+</body>
+</html>

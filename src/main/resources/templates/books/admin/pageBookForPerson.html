@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page book for person</title>
+</head>
+<body>
+
+<p th:text="${'Title: ' + infoAboutBook.getTitle()}"></p>
+<p th:text="${'Type of book: ' + typeBook.getTypeName()}"></p>
+<p th:text="${'Maximum retention period for book: ' + typeBook.getCountOfDaysToRead()}"></p>
+<p th:text="${'Amount of fine per day of delay: ' + typeBook.getFine()}"></p>
+<br>
+
+<div th:if="${currentDate.compareTo(dateEnd) < 0}">
+    <p th:text="${'The book return deadline is ' + dateEnd + ' inclusive'}"></p>
+</div>
+
+<div th:if="${currentDate.compareTo(dateEnd) > 0}">
+    <p th:text="${'User has expired this book'}"></p>
+    <p th:text="${'The deadline for returning the book was ' + dateEnd + ' inclusive'}"></p>
+    <p th:text="${'The current fine is ' + fine}"></p>
+</div>
+
+</body>
+</html>

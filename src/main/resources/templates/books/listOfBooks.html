@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"
+xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>List of books</title>
+    <style>
+        .button-spacing {
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+<form th:method="GET" th:action="@{/books/search}">
+    <label>
+        <input type="text" name="query" placeholder="Enter text to search: ">
+    </label>
+    <button type="submit" class="button-spacing">Search</button>
+    <div sec:authorize="hasRole('ADMIN')">
+        <br>
+        <a href="/people/admin" class="button-spacing">People</a>
+        <a href="/books/new" class="button-spacing">Create book</a>
+        <a href="/books/bookTypes" class="button-spacing">Book type</a>
+</div>
+</form>
+<br>
+<div sec:authorize="hasRole('USER')">
+    <form th:method="GET" th:action="@{/people/user/{id}(id=${personId})}">
+        <input type="submit" value="Profile">
+    </form>
+</div>
+<br>
+<div th:if="${books.isEmpty()}">
+    <p th:text="${'No books found'}"></p>
+</div>
+<div th:unless="${books.isEmpty()}">
+    <div th:each="book : ${books}">
+        <br>
+        <div sec:authorize="hasRole('USER')">
+        <a th:href="@{/books/user/{id}(id=${book.getBookId()}) }"
+           th:text="${book.getTitle()}"></a>
+        </div>
+        <div sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/books/admin/{id}(id=${book.getBookId()}) }"
+               th:text="${book.getTitle()}"></a>
+        </div>
+    </div>
+</div>
+<br>
+<div th:if="${totalPages > 0}">
+    <div th:if="${currentPage > 0}">
+        <a th:href="@{'/books?page=' + ${currentPage - 1} + '&books_per_page=' + ${booksPerPage}}" th:text="${'Previous'}"></a>
+    </div>
+
+    <div th:if="${currentPage < totalPages}">
+        <a th:href="@{'/books?page=' + ${currentPage + 1} + '&books_per_page=' + ${booksPerPage}}" th:text="${'Next'}"></a>
+    </div>
+</div>
+<br>
+
+</body>
+</html>

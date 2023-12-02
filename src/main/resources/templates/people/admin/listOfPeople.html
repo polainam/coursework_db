@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Search</title>
+</head>
+<body>
+<div>
+
+    <form th:method="GET" th:action="@{/people/admin/search}">
+        <label>
+            <input type="text" name="query" placeholder="Enter text to search">
+        </label>
+        <button type="submit">Search</button>
+    </form>
+
+    <div th:each="person : ${people}">
+        <a th:href="@{/people/admin/{id}(id=${person.getPersonId()})}">
+            <span th:text="${person.getUserName()}"></span>
+        </a>
+    </div>
+
+    <div class="pagination" th:if="${totalPages > 1}">
+        <div th:if="${currentPage > 0}">
+            <a th:href="@{'/people?page=' + ${currentPage - 1} + '&peoplePerPage=' + ${peoplePerPage}}" class="pagination-link" th:text="${'Previous'}"></a>
+        </div>
+
+        <div th:if="${currentPage < totalPages}">
+            <a th:href="@{'/people?page=' + ${currentPage + 1} + '&peoplePerPage=' + ${peoplePerPage}}" class="pagination-link" th:text="${'Next'}"></a>
+            </div>
+    </div>
+</div>
+
+</body>
+</html>

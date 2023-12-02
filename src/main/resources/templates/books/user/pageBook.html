@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Page Book</title>
+</head>
+<body>
+<p th:text="${'Title: ' + infoAboutBook.getTitle()}"></p>
+<p th:text="${'Type of book: ' + typeBook.getTypeName()}"></p>
+<p th:text="${'Maximum retention period for book: ' + typeBook.getCountOfDaysToRead()}"></p>
+<p th:text="${'Amount of fine per day of delay: ' + typeBook.getFine()}"></p>
+
+<br>
+
+<div th:if="${isBookBorrowed == false}">
+
+    <div th:if="${infoAboutBook.getNumberOfCopies() == 0}">
+        <p th:text="${'No free copies'}" />
+    </div>
+
+</div>
+
+<div th:if="${isBookBorrowed == true && currentDate.compareTo(dateEnd) < 0}">
+    <p th:text="${'You are reading this book'}" />
+    <p th:text="${'The book return deadline is ' + dateEnd + ' inclusive'}" />
+</div>
+
+<div th:if="${isBookBorrowed == true && currentDate.compareTo(dateEnd) > 0}">
+    <p th:text="${'You are overdue for this book'}" />
+    <p th:text="${'The deadline for returning the book was ' + dateEnd + ' inclusive'}" />
+    <p th:text="${'The current fine is ' + fine}" />
+</div>
+
+<br>
+
+</body>
+</html>
