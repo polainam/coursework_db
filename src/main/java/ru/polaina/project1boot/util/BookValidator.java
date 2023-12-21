@@ -7,15 +7,19 @@ import org.springframework.validation.Validator;
 import ru.polaina.project1boot.models.Book;
 import ru.polaina.project1boot.models.TypeBook;
 import ru.polaina.project1boot.services.BooksService;
+import ru.polaina.project1boot.services.TypeBookService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class BookValidator implements Validator {
 
-    private final BooksService booksService;
+    private final TypeBookService typeBookService;
 
     @Autowired
-    public BookValidator(BooksService booksService) {
-        this.booksService = booksService;
+    public BookValidator(TypeBookService typeBookService) {
+        this.typeBookService = typeBookService;
     }
 
     @Override
@@ -26,28 +30,22 @@ public class BookValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         Book book = (Book) target;
-        TypeBook typeBook = new TypeBook();
-        switch (book.getTypeName()) {
-            case "ordinary" -> {
-                typeBook.setTypeId(1);
-                book.setTypeBook(typeBook);
+        List<TypeBook> types = typeBookService.findAll();
+        for (TypeBook type: types) {
+            if (type.getTypeName().equals(book.getTypeName())) {
+                book.setTypeBook(type);
             }
-            case "rare" -> {
-                typeBook.setTypeId(2);
-                book.setTypeBook(typeBook);
-            }
-            case "unique" -> {
-                typeBook.setTypeId(3);
-                book.setTypeBook(typeBook);
-            }
-            default -> errors.rejectValue("typeName", "", "Choose one of three types: ordinary, rare, unique");
+        }
+        if (book.getTypeBook() == null) {
+            errors.rejectValue("typeName", "", "Choose one of these: " + getTypeBooks());
         }
     }
 
-    public void validateCountOfBooks(Object target, Errors errors) {
-        Integer numberOfCopies = (Integer) target;
-        if (numberOfCopies == null) {
-            errors.rejectValue("numberOfCopies", "", "Count of copies should not be empty");
+    private List<String> getTypeBooks() {
+        List<String> types = new ArrayList<>();
+        for (TypeBook type: typeBookService.findAll()) {
+            types.add(type.getTypeName());
         }
+        return types;
     }
 }

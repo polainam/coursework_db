@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Type Book</title>
+</head>
+<body>
+<a th:href="@{/bookTypes}">back</a>
+<br>
+<br>
+<form th:method="POST" th:action="@{/bookTypes/new}" th:object="${newBookType}">
+    <label for="typeName">Enter the name of the book type: </label>
+    <input type="text" th:field="*{typeName}" id="typeName"/>
+    <div style="color:gray" th:if="${#fields.hasErrors('typeName')}" th:errors="*{typeName}"></div>
+    <br>
+    <br/>
+    <label for="fine">Enter the fine amount: </label>
+    <input type="text" th:field="*{fine}" id="fine" required/>
+    <div style="color:gray" th:if="${#fields.hasErrors('fine')}" th:errors="*{fine}"></div>
+    <br>
+    <br/>
+    <label for="countOfDaysToRead">Enter the number of days to read the book: </label>
+    <input type="text" th:field="*{countOfDaysToRead}" id="countOfDaysToRead" required/>
+    <div style="color:gray" th:if="${#fields.hasErrors('countOfDaysToRead')}" th:errors="*{countOfDaysToRead}"></div>
+    <br>
+    <br/>
+
+    <input type="submit" value="Create"/>
+</form>
+
+</body>
+</html>

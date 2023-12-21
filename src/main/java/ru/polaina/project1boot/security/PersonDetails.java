@@ -1,7 +1,6 @@
 package ru.polaina.project1boot.security;
 
 import edu.emory.mathcs.backport.java.util.Collections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

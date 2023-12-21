@@ -4,9 +4,44 @@
     <meta charset="UTF-8">
     <title>Main menu</title>
     <style>
-        .button-container {
+        .pagination-container {
             text-align: center;
             margin-top: 10px;
+        }
+
+        .assign-button-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        form {
+            width: 48%;
+        }
+
+        table {
+            width: 70%;
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        .button-spacing {
+            margin-right: 30px;
         }
     </style>
     <script>
@@ -18,22 +53,29 @@
 </head>
 <body>
 
-<table border="1" style="width: 90%; margin: auto; border-collapse: collapse;">
+<a href="/people/admin" class="button-spacing">People</a>
+<a href="/books/admin" class="button-spacing">Books</a>
+<a href="/bookTypes" class="button-spacing">Book types</a>
+<a href="/exportToExcel/journal" class="button-spacing">Export to Excel</a>
+<a href="/people/admin/queryHistory" class="button-spacing">Query History</a>
+
+<div class="header-container">
+    <h3>Journal Entries</h3>
+</div>
+<table border="1" style="width: 80%; margin: auto; border-collapse: collapse;">
     <thead>
     <tr>
-        <th style="width: 10%; text-align: center;">ID</th>
-        <th style="width: 15%; text-align: center;">Book ID</th>
-        <th style="width: 15%; text-align: center;">Client ID</th>
+        <th style="width: 15%; text-align: center;">Book</th>
+        <th style="width: 15%; text-align: center;">Client</th>
         <th style="width: 15%; text-align: center;">Date Begin</th>
         <th style="width: 15%; text-align: center;">Date End</th>
         <th style="width: 15%; text-align: center;">Date Return</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="entry : ${journal}">
-        <td style="text-align: center;" th:text="${entry.getId()}"></td>
-        <td style="text-align: center;" th:text="${entry.getBookId()}"></td>
-        <td style="text-align: center;" th:text="${entry.getPersonId()}"></td>
+    <tr th:each="entry : ${journalPage}">
+        <td style="text-align: center;" th:text="${entry.getBook().getTitle()}"></td>
+        <td style="text-align: center;" th:text="${entry.getPerson().getUserName()}"></td>
         <td style="text-align: center;" th:text="${entry.getDateBegin()}"></td>
         <td style="text-align: center;" th:text="${entry.getDateEnd()}"></td>
         <td style="text-align: center;" th:text="${entry.getDateReturn()}"></td>
@@ -41,52 +83,98 @@
     </tbody>
 </table>
 
+<div class="pagination-container">
+    <div th:if="${totalPages > 0}">
+        <div th:if="${currentPage > 0}" style="display: inline-block; margin-right: 10px;">
+            <a th:href="@{'/people/admin/menu?page=' + ${currentPage - 1} + '&journal_per_page=' + ${journalPerPage}}" th:text="${'Previous'}"></a>
+        </div>
+
+        <div th:if="${currentPage < totalPages}" style="display: inline-block;">
+            <a th:href="@{'/people/admin/menu?page=' + ${currentPage + 1} + '&journal_per_page=' + ${journalPerPage}}" th:text="${'Next'}"></a>
+        </div>
+    </div>
+</div>
+
 <br>
 <br>
 <br>
 
+<div class="form-container">
 <form th:method="PUT" th:action="@{'/people/admin/assign'}">
-<table border="1" style="width: 40%; margin: auto; border-collapse: collapse;">
-    <thead>
-    <tr>
-        <th style="width: 15%; text-align: center;">Book Title</th>
-        <th style="width: 15%; text-align: center;">Username</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td style="text-align: center;">
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 15%; text-align: center;">Book Title</th>
+            <th style="width: 15%; text-align: center;">Username</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: center;">
                 <label>
                     <select name="bookId">
                         <option th:each="book : ${books}" th:value="${book.getBookId()}" th:text="${book.getTitle()}"></option>
                     </select>
                 </label>
-        </td>
-        <td style="text-align: center;">
-            <label>
-                <select name="personId">
-                    <option th:each="person : ${people}" th:value="${person.getPersonId()}" th:text="${person.getUserName()}"></option>
-                </select>
-            </label>
-        </td>
-    </tr>
-</tbody>
-</table>
-<div class="button-container">
-    <input type="submit" value="Assign a book">
+            </td>
+            <td style="text-align: center;">
+                <label>
+                    <select name="personId">
+                        <option th:each="person : ${people}" th:value="${person.getPersonId()}" th:text="${person.getUserName()}"></option>
+                    </select>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="assign-button-container">
+        <input type="submit" value="Assign a book">
+        <br>
+        <span th:if="${exceededTenBooks}" style="color: grey">The user cannot read more than 10 books</span>
+        <span th:if="${bookIsOutOfStock}" style="color: grey">The number of copies of the book is 0</span>
+        <span th:if="${duplicateBooks}" style="color: grey">Client is already reading this book</span>
+    </div>
+</form>
+
 <br>
-    <span th:if="${exceededTenBooks}" style="color: grey">The user cannot read more than 10 books</span>
-    <span th:if="${bookIsOutOfStock}" style="color: grey">The number of copies of the book is 0</span>
+<br>
+<br>
+
+<form th:method="PUT" th:action="@{'/people/admin/return'}">
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 15%; text-align: center;">Book Title</th>
+            <th style="width: 15%; text-align: center;">Username</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: center;">
+                <label>
+                    <select name="bookId">
+                        <option th:each="book : ${books}" th:value="${book.getBookId()}" th:text="${book.getTitle()}"></option>
+                    </select>
+                </label>
+            </td>
+            <td style="text-align: center;">
+                <label>
+                    <select name="personId">
+                        <option th:each="person : ${people}" th:value="${person.getPersonId()}" th:text="${person.getUserName()}"></option>
+                    </select>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="assign-button-container">
+        <input type="submit" value="Return a book">
+        <br>
+        <span th:if="${clientRecordNotFound}" style="color: grey">This client did not take the book</span>
+    </div>
+</form>
 </div>
-</form>
-<!--<div class="button-container">
-<form action="/journal/addEntry" method="post">
-    <button type="submit">Assign a book</button>
-</form>
-    <br>
-<form action="/journal/returnBook" method="post">
-    <button type="submit">Return a book</button>
-</form>
-</div>-->
 </body>
 </html>

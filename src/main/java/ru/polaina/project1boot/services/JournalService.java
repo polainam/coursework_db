@@ -1,16 +1,16 @@
 package ru.polaina.project1boot.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.polaina.project1boot.models.Book;
 import ru.polaina.project1boot.models.Journal;
 import ru.polaina.project1boot.repositories.JournalRepository;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -28,28 +28,9 @@ public class JournalService {
         this.booksService = booksService;
     }
 
-    public List<Journal> findAllByBookId(int bookId) {
-        return journalRepository.findAllByBookId(bookId);
-    }
-
-    public void setDateReserve(Date dateReserve) {
-
-    }
-
     public Optional<Journal> findIdByBookIdAndPersonId(int bookId, int personId) {
         return journalRepository.findIdByBookIdAndPersonIdAndDateReturnNull(bookId, personId);
     }
-
- /*   public boolean isBookReserved(int bookId, int personId) {
-        Optional<Journal> journalEntry = findIdByBookIdAndPersonId(bookId, personId);
-
-        if (journalEntry.isPresent()) {
-            Journal journal = journalRepository.findById(journalEntry.get().getId()).orElse(null); // null никогда не будет
-            return journal != null && journal.getDateReserve() != null;
-        }
-
-        return false;
-    }*/
 
     public Journal getJournalEntry(int bookId, int personId) {
         Optional<Journal> journalEntry = findIdByBookIdAndPersonId(bookId, personId);
@@ -61,54 +42,20 @@ public class JournalService {
         journalRepository.save(journal);
     }
 
-/*    @Transactional
-    public void deleteExpiredReservations(Date currentDate) {
-        journalRepository.deleteByDateEndReserveBefore(currentDate);
-    }
-
-    @Transactional
-    public void delete(Journal journalEntry) {
-        journalRepository.delete(journalEntry);
-    }
-
-    public List<Journal> findByPersonIdAndDateReserveNotNull(int personId) {
-        return journalRepository.findByPersonIdAndDateReserveNotNull(personId);
-    }*/
-
     public List<Journal> findByPersonIdAndDateRetNull(int personId) {
         return journalRepository.findByPersonIdAndDateReturnNull(personId);
     }
 
-    public boolean isBookBorrowed(int bookId, int personId) {
-        Optional<Journal> journalEntry = findIdByBookIdAndPersonId(bookId, personId);
-
-        if (journalEntry.isPresent()) {
-            Journal journal = journalRepository.findById(journalEntry.get().getId()).orElse(null); // null никогда не будет
-            return journal != null && journal.getDateBegin() != null;
-        }
-        return false;
-    }
-
-    public List<Journal> findAllByPersonId(int personId) {
-        return journalRepository.findAllByPersonId(personId);
-    }
-
-    public Integer countAllByPersonId(int personId) {
-        return journalRepository.countAllByPersonId(personId);
-    }
-
     @Transactional
-    public void returnBooks(List<Integer> returnedBooksId) {
-        for (Integer id:returnedBooksId) {
-            /*Date dateReturn = new Timestamp(System.currentTimeMillis());*/
+    public void returnBook(Journal journalEntry) {
             Date currentDate = new Date();
             Timestamp currentTimestamp = new Timestamp(currentDate.getTime());
-            Optional<Journal> journal = journalRepository.findByBookIdAndDateReturnNull(id);
-            journal.get().setDateReturn(currentTimestamp);
-            Book book = booksService.findOne(id);
+            journalEntry.setDateReturn(currentTimestamp);
+            journalRepository.save(journalEntry);//update?
+            int bookId = journalEntry.getBookId();
+            Book book = booksService.findOne(bookId);
             book.increaseNumberOfCopies();
-            booksService.update(id, book);
-        }
+            booksService.update(book.getBookId(), book); //update?
     }
 
     @Transactional
@@ -128,13 +75,14 @@ public class JournalService {
         return journalRepository.findAll();
     }
 
-/*    public List<Journal> getExpiredBooks(Date date, List<Journal> borrowedBooks) {
-        List<Journal> expiredBooks = new ArrayList<>();
-        for (Journal journalEntry:borrowedBooks) {
-            if (journalEntry.getDateEnd().compareTo(date) < 0) {
-                expiredBooks.add(journalEntry);
-            }
-        }
-        return expiredBooks;
-    }*/
+    public Page<Journal> findAllWithPagination(Integer page, Integer journalPerPage) {
+        Pageable pageable = PageRequest.of(page, journalPerPage);
+
+        return journalRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public void deleteByBookId(int id) {
+        journalRepository.deleteByBookId(id);
+    }
 }

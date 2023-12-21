@@ -3,8 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Book Search</title>
+    <style>
+        .header-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .pagination-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .button-spacing {
+            margin-right: 30px;
+        }
+    </style>
 </head>
 <body>
+<a th:href="@{/people/admin/menu}">back</a>
+<br>
+<br>
 <div>
 
     <form th:method="GET" th:action="@{/people/admin/search}">
@@ -13,21 +30,44 @@
         </label>
         <button type="submit">Search</button>
     </form>
-
-    <div th:each="person : ${people}">
-        <a th:href="@{/people/admin/{id}(id=${person.getPersonId()})}">
-            <span th:text="${person.getUserName()}"></span>
-        </a>
+    <br>
+    <a href="/exportToExcel/clients" class="button-spacing">Export to Excel</a>
+    <div class="header-container">
+        <h3>Clients</h3>
     </div>
+    <table border="1" style="width: 50%; margin: auto; border-collapse: collapse;">
+        <thead>
+        <tr>
+            <th style="width: 15%; text-align: center;">User name</th>
+            <th style="width: 15%; text-align: center;">First name</th>
+            <th style="width: 15%; text-align: center;">Last name</th>
+            <th style="width: 15%; text-align: center;">Passport seria</th>
+            <th style="width: 15%; text-align: center;">Passport number</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="person : ${people}">
+            <td style="text-align: center;">
+                <a th:href="@{/people/admin/{id}(id=${person.getPersonId()})}" th:text="${person.getUserName()}"></a>
+            </td>
+            <td style="text-align: center;" th:text="${person.getFirstName()}"></td>
+            <td style="text-align: center;" th:text="${person.getLastName()}"></td>
+            <td style="text-align: center;" th:text="${person.getPassportSeria()}"></td>
+            <td style="text-align: center;" th:text="${person.getPassportNum()}"></td>
+        </tr>
+        </tbody>
+    </table>
 
-    <div class="pagination" th:if="${totalPages > 1}">
-        <div th:if="${currentPage > 0}">
-            <a th:href="@{'/people?page=' + ${currentPage - 1} + '&peoplePerPage=' + ${peoplePerPage}}" class="pagination-link" th:text="${'Previous'}"></a>
+    <div class="pagination-container">
+        <div th:if="${totalPages > 1}">
+        <div th:if="${currentPage > 0}" style="display: inline-block; margin-right: 10px;">
+            <a th:href="@{'/people/admin?page=' + ${currentPage - 1} + '&peoplePerPage=' + ${peoplePerPage}}" th:text="${'Previous'}"></a>
         </div>
 
-        <div th:if="${currentPage < totalPages}">
-            <a th:href="@{'/people?page=' + ${currentPage + 1} + '&peoplePerPage=' + ${peoplePerPage}}" class="pagination-link" th:text="${'Next'}"></a>
+        <div th:if="${currentPage < totalPages}" style="display: inline-block;">
+            <a th:href="@{'/people/admin?page=' + ${currentPage + 1} + '&peoplePerPage=' + ${peoplePerPage}}" th:text="${'Next'}"></a>
             </div>
+    </div>
     </div>
 </div>
 

@@ -13,7 +13,6 @@ import ru.polaina.project1boot.services.PeopleService;
 import ru.polaina.project1boot.util.PersonValidator;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -37,8 +36,6 @@ public class UserController {
         model.addAttribute("infoAboutPerson", person);
         List<Journal> borrowedBooks = journalService.findByPersonIdAndDateRetNull(person.getPersonId());
         model.addAttribute("borrowedBooks", borrowedBooks);
-        /*Date currentDate = Calendar.getInstance().getTime();
-        model.addAttribute("currentDate", currentDate);*/
         Date currentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String formattedCurrentDate = dateFormat.format(currentDate);

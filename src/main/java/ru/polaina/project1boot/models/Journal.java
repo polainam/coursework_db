@@ -1,7 +1,6 @@
 package ru.polaina.project1boot.models;
 
 import jakarta.persistence.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -30,16 +29,13 @@ public class Journal {
 
     @Column(name = "date_beg")
     @Temporal(TemporalType.TIMESTAMP)
-    //@DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateBegin;
     @Column(name = "date_end")
     @Temporal(TemporalType.TIMESTAMP)
-    //@DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateEnd;
 
     @Column(name = "date_ret")
     @Temporal(TemporalType.TIMESTAMP)
-    //@DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateReturn;
 
     public int getId() {

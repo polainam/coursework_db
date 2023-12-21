@@ -5,19 +5,24 @@
     <title>Edit book</title>
 </head>
 <body>
-
+<a th:href="@{/books/admin/{id}(id=${editBook.getBookId()})}">back</a>
+<br>
+<br>
 <form th:method="PATCH" th:action="@{/books/{id}(id=${editBook.getBookId()})}" th:object="${editBook}">
   <label for="title">Enter book title: </label>
   <input type="text" th:field="*{title}" id="title"/>
-  <div style="color:red" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+  <div style="color:gray" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
   <br/>
+  <br>
   <label for="numberOfCopies">Enter count of copies: </label>
-  <input type="text" th:field="*{numberOfCopies}" id="numberOfCopies"/>
-  <div style="color:red" th:if="${#fields.hasErrors('numberOfCopies')}" th:errors="*{numberOfCopies}"></div>
+  <input type="text" th:field="*{numberOfCopies}" id="numberOfCopies" required/>
+  <div style="color:gray" th:if="${#fields.hasErrors('numberOfCopies')}" th:errors="*{numberOfCopies}"></div>
   <br/>
+  <br>
   <label for="typeName">Enter type of book: </label>
   <input type="text" th:field="*{typeName}" id="typeName"/>
-  <div style="color:red" th:if="${#fields.hasErrors('typeName')}" th:errors="*{typeName}"></div>
+  <div style="color:gray" th:if="${#fields.hasErrors('typeName')}" th:errors="*{typeName}"></div>
+  <br>
   <br/>
   <input type="submit" value="Update"/>
 </form>

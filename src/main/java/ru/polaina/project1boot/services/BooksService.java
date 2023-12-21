@@ -2,16 +2,13 @@ package ru.polaina.project1boot.services;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.polaina.project1boot.models.Book;
-import ru.polaina.project1boot.models.Journal;
-import ru.polaina.project1boot.models.Person;
 import ru.polaina.project1boot.models.TypeBook;
 import ru.polaina.project1boot.repositories.BooksRepository;
 
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,11 +38,6 @@ public class BooksService {
         return booksRepository.findAll(PageRequest.of(page, booksPerPage, Sort.by(yearOfPublishing))).getContent();
     }
 
-/*    public List<Book> findByPersonId(Person personId) {
-        //return journalRepository.findByPersonId(personId);
-        return booksRepository.findByPersonId(personId);
-    }*/
-
     @Transactional
     public void save(Book newBook) {
         booksRepository.saveNewBook(newBook.getTitle(), newBook.getNumberOfCopies(), newBook.getTypeBook().getTypeId());
@@ -61,34 +53,10 @@ public class BooksService {
         booksRepository.update(id, updatedBook.getTitle(), updatedBook.getNumberOfCopies(), updatedBook.getTypeBook().getTypeId());
     }
 
-    public Optional<Book> findByTitle(String title) {
-        return booksRepository.findByTitle(title);
-    }
-
-
     @Transactional
     public void delete(int id) {
         booksRepository.deleteBook(id);
     }
-
-/*    @Transactional
-    public void update(int bookId) {
-        Book updatedBook = findOne(bookId);
-        updatedBook.setPersonId(null);
-        booksRepository.save(updatedBook);
-    }*/
-
-/*    @Transactional
-    public void update(Person personId, int bookId) { //personId был int
-        Book updatedBook = findOne(bookId);
-        updatedBook.setPersonId(personId);
-
-        updatedBook.setDateOfReceiving(new Date()); //человек в это время взял книгу
-
-        booksRepository.save(updatedBook);
-    }*/
-
-
 
     public List<Book> findByTitleIsStartingWith(String query) {
         return booksRepository.findByTitleIsStartingWith(query);
@@ -96,5 +64,20 @@ public class BooksService {
 
     public int countAll() {
         return findAll().size();
+    }
+
+    public List<Book> findByTypeBook(TypeBook typeBook) {
+        return booksRepository.findByTypeBook(typeBook);
+    }
+
+    public List<Book> paginateBooks(List<Book> books, int page, int booksPerPage) {
+        int startIdx = page * booksPerPage;
+        int endIdx = Math.min(startIdx + booksPerPage, books.size());
+
+        if (startIdx >= books.size()) {
+            return Collections.emptyList();
+        }
+
+        return books.subList(startIdx, endIdx);
     }
 }

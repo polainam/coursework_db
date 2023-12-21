@@ -1,7 +1,6 @@
 package ru.polaina.project1boot.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
@@ -19,10 +18,8 @@ public class Person {
     @Column(name = "user_name")
     private String userName;
 
-    /////////////////////////////////////
     @OneToMany(mappedBy = "person")
     private List<Journal> journalEntries;
-    /////////////////////////////////////
 
     @Pattern(regexp = "[A-Z][a-z]+",
             message = "The name must begin with a capital letter")

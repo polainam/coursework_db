@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page Book Type</title>
+    <style>
+        .header-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .pagination-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .button-spacing {
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+<a th:href="@{/bookTypes}">back</a>
+<br>
+<br>
+<p th:text="${'Book type: ' + typeBook.getTypeName()}"></p>
+<p th:text="${'Fine: ' + typeBook.getFine()}"></p>
+<p th:text="${'Book reading time: ' + typeBook.getCountOfDaysToRead()}"></p>
+<br>
+<form th:method="GET" th:action="@{/bookTypes/{id}/edit(id=${typeBook.getTypeId()})}">
+    <input type="submit" value="Edit">
+</form>
+<br>
+<form th:method="DELETE" th:action="@{/bookTypes/{id}(id=${typeBook.getTypeId()})}">
+    <input type="submit" value="Delete">
+</form>
+<div th:if="${hasThisTypeBookBeenDeleted != null}">
+    <div th:if="${cause == 'Foreign key constraint'}" style="color: gray;">
+        <p th:text="${'There are books with this book type'}"></p>
+    </div>
+</div>
+<div class="header-container">
+    <h4>All books of this type</h4>
+</div>
+<table border="1" style="width: 50%; margin: auto; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th style="width: 15%; text-align: center;">Title</th>
+        <th style="width: 15%; text-align: center;">Number of copies</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${booksWithType}">
+        <td style="text-align: center;" th:text="${book.getTitle()}"></td>
+        <td style="text-align: center;" th:text="${book.getNumberOfCopies()}"></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<div class="pagination-container">
+    <div th:if="${totalPages > 0}">
+        <div th:if="${currentPage > 0}" style="display: inline-block; margin-right: 10px;">
+            <a th:href="@{'/bookTypes/' + ${typeBook.getTypeId()} + '?page=' + ${currentPage - 1} + '&typeBook_per_page=' + ${booksPerPage}}" th:text="${'Previous'}"></a>
+        </div>
+
+        <div th:if="${currentPage < totalPages}" style="display: inline-block;">
+            <a th:href="@{'/bookTypes/' + ${typeBook.getTypeId()} + '?page=' + ${currentPage + 1} + '&typeBook_per_page=' + ${booksPerPage}}" th:text="${'Next'}"></a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

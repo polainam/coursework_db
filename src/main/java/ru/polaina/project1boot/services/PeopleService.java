@@ -11,12 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import ru.polaina.project1boot.models.Journal;
 import ru.polaina.project1boot.models.Person;
 import ru.polaina.project1boot.repositories.PeopleRepository;
 import ru.polaina.project1boot.security.PersonDetails;
-import ru.polaina.project1boot.util.PersonValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,15 +41,17 @@ public class PeopleService implements UserDetailsService {
         person.setPassword(encodedPassword);
         person.setRole("ROLE_USER");
         peopleRepository.save(person.getUserName(), person.getFirstName(), person.getLastName(),
-                person.getPartherName(), person.getPassportSeria(), person.getPassportNum(), person.getPassword(), person.getRole());
+                person.getPartherName(), person.getPassportSeria(), person.getPassportNum(),
+                person.getPassword(), person.getRole());
     }
 
     @Transactional
     public void update(int id, Person updatedPerson) {
         String encodedPassword = passwordEncoder.encode(updatedPerson.getPassword());
         updatedPerson.setPassword(encodedPassword);
-        peopleRepository.update(id, updatedPerson.getUserName(), updatedPerson.getFirstName(), updatedPerson.getLastName(), updatedPerson.getPartherName(),
-                 updatedPerson.getPassportSeria(), updatedPerson.getPassportNum(), updatedPerson.getPassword());
+        peopleRepository.update(id, updatedPerson.getUserName(), updatedPerson.getFirstName(), updatedPerson.getLastName(),
+                updatedPerson.getPartherName(), updatedPerson.getPassportSeria(),
+                updatedPerson.getPassportNum(), updatedPerson.getPassword());
     }
 
     public Person findOne(int id) {
@@ -81,10 +80,6 @@ public class PeopleService implements UserDetailsService {
     public List<Person> findAllUsers(String role) {
         return peopleRepository.findAllByRole(role);
     }
-
-/*    public List<Person> findAll(Integer page, Integer peoplePerPage) {
-        return peopleRepository.findAll(PageRequest.of(page, booksPerPage)).getContent();
-    }*/
 
     public Page<Person> findUsersWithRole(Integer page, Integer peoplePerPage) {
         String roleName = "ROLE_USER";

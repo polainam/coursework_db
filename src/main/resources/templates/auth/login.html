@@ -11,12 +11,14 @@
   <label for="username">Enter your username: </label>
   <input type="text" name="username" id="username"/>
   <br/>
+  <br/>
   <label for="password">Enter your password: </label>
   <input type="password" name="password" id="password"/>
   <br/>
+  <br/>
   <input type="submit" value="Login"/>
 
-  <div th:if="${param.error}" style="color: red">
+  <div th:if="${param.error}" style="color: gray">
     Incorrect username or password
   </div>
 </form>

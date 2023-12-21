@@ -13,23 +13,11 @@
     </script>
 </head>
 <body>
-
+<a th:href="@{/people/admin}">back</a>
+<br>
+<br>
 <p th:text="${infoAboutPerson.getUserName()}"></p>
 <p th:text="${infoAboutPerson.getLastName() + ' ' + infoAboutPerson.getFirstName() + ' ' + infoAboutPerson.getPartherName()}"></p>
-
-    <form th:method="PATCH" th:action="@{'/people/admin/'+${infoAboutPerson.getPersonId()}+'/assign'}">
-        <label>
-            <select name="bookId">
-                <option th:each="book : ${books}" th:value="${book.getBookId()}" th:text="${book.getTitle()}"></option>
-            </select>
-        </label>
-
-        <input th:if="${!exceededTenBooks}" type="submit" value="Assign">
-        <input th:if="${exceededTenBooks}" type="submit" value="Assign" disabled="disabled">
-        <span th:if="${exceededTenBooks}" style="color: grey">The user cannot read more than 10 books</span>
-        <span th:if="${bookIsOutOfStock}" style="color: grey">The number of copies of the book is 0</span>
-    </form>
-
 <br>
 
 <div th:if="${numberOfBooks != 0 && numberOfBooks != null}" >
@@ -59,12 +47,6 @@
 </div>
 
 <hr>
-
-<div th:if="${!borrowedBooks.isEmpty()}">
-<form th:method="GET" th:action="@{'/people/admin/return/' + ${infoAboutPerson.getPersonId()}}">
-    <input type="submit" value="Return books">
-</form>
-</div>
 
 <br>
 

@@ -5,7 +5,8 @@
     <title>Page person</title>
 </head>
 <body>
-
+<a th:href="@{/books}">back</a>
+<br>
 <p th:text="${infoAboutPerson.getUserName()}"></p>
 <p th:text="${infoAboutPerson.getLastName() + ' ' + infoAboutPerson.getFirstName() + ' ' + infoAboutPerson.getPartherName()}"></p>
 

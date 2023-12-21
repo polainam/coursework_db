@@ -5,6 +5,8 @@
     <title>Page Book</title>
 </head>
 <body>
+<a th:href="@{/books}">back</a>
+<br>
 <p th:text="${'Title: ' + infoAboutBook.getTitle()}"></p>
 <p th:text="${'Type of book: ' + typeBook.getTypeName()}"></p>
 <p th:text="${'Maximum retention period for book: ' + typeBook.getCountOfDaysToRead()}"></p>

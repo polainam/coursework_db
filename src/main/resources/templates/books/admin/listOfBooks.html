@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Books for admin</title>
+    <style>
+        .header-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .pagination-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<a th:href="@{/people/admin/menu}">back</a>
+<br>
+<br>
+<form th:method="GET" th:action="@{/books/search}">
+    <label>
+        <input type="text" name="query" placeholder="Enter text to search">
+    </label>
+    <button type="submit">Search</button>
+</form>
+<br>
+<a href="/exportToExcel/books" class="button-spacing">Export to Excel</a>
+
+<br>
+
+<a href="/books/new" class="button-spacing">Create book</a>
+
+<div class="header-container">
+    <h3>Books</h3>
+</div>
+<table border="1" style="width: 50%; margin: auto; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th style="width: 15%; text-align: center;">Title</th>
+        <th style="width: 15%; text-align: center;">Number of copies</th>
+        <th style="width: 15%; text-align: center;">Book type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}">
+        <td style="text-align: center;">
+            <a th:href="@{/books/admin/{id}(id=${book.getBookId()})}" th:text="${book.getTitle()}"></a>
+        </td>
+        <td style="text-align: center;" th:text="${book.getNumberOfCopies()}"></td>
+        <td style="text-align: center;" th:text="${book.getTypeBook().getTypeName()}"></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<div class="pagination-container">
+<div th:if="${totalPages > 0}">
+    <div th:if="${currentPage > 0}" style="display: inline-block; margin-right: 10px;">
+        <a th:href="@{'/books/admin?page=' + ${currentPage - 1} + '&books_per_page=' + ${booksPerPage}}" th:text="${'Previous'}"></a>
+    </div>
+
+    <div th:if="${currentPage < totalPages}" style="display: inline-block;">
+        <a th:href="@{'/books/admin?page=' + ${currentPage + 1} + '&books_per_page=' + ${booksPerPage}}" th:text="${'Next'}"></a>
+    </div>
+</div>
+</div>
+</body>
+</html>

@@ -2,6 +2,7 @@ package ru.polaina.project1boot.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -20,8 +21,6 @@ import ru.polaina.project1boot.services.TypeBookService;
 import ru.polaina.project1boot.util.BookValidator;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -31,10 +30,7 @@ public class BooksController {
     private final BooksService bookService;
     private  final JournalService journalService;
     private final BookValidator bookValidator;
-
     private final TypeBookService typeBookService;
-
-    private static final int NUMBER_OF_DAYS_OF_RESERVE = 3;
 
     @Autowired
     public BooksController(BooksService bookService, JournalService journalService, BookValidator bookValidator, TypeBookService typeBookService) {
@@ -44,6 +40,7 @@ public class BooksController {
         this.typeBookService = typeBookService;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping()
     public String listOfBooks(Model model,
                               @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
@@ -64,7 +61,25 @@ public class BooksController {
         Person person = ((PersonDetails) authentication.getPrincipal()).getPerson();
         model.addAttribute("personId", person.getPersonId());
 
-        return "books/listOfBooks";
+        return "books/user/listOfBooks";
+    }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin")
+    public String listOfBooksForAdmin(Model model,
+                              @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                              @RequestParam(value = "books_per_page", required = false, defaultValue = "10") Integer booksPerPage) {
+        int totalBooks = bookService.countAll();
+
+        int totalPages = (int) Math.ceil((double) totalBooks / booksPerPage) - 1;
+
+        List<Book> books = bookService.findAll(page, booksPerPage);
+
+        model.addAttribute("booksPerPage", booksPerPage);
+        model.addAttribute("books", books);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+
+        return "books/admin/listOfBooks";
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -77,19 +92,21 @@ public class BooksController {
     @PostMapping("/new")
     public String insertNewBook(@ModelAttribute("newBook") @Valid Book book, BindingResult bindingResult) {
         bookValidator.validate(book, bindingResult);
-        bookValidator.validateCountOfBooks(book.getNumberOfCopies(), bindingResult);
         if (bindingResult.hasErrors()) {
             return "books/admin/newBook";
         }
         bookService.save(book);
-        return "redirect:/books";
+        TypeBook typeBook = book.getTypeBook();
+        int countOfBooksWithThisType = typeBook.getBooks().size();
+        typeBook.setCountOfTypes(countOfBooksWithThisType);
+        typeBookService.update(typeBook.getTypeId(), typeBook);
+        return "redirect:/books/admin";
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/user/{id}")
     public String pageBookForUser(@PathVariable("id") int id, Authentication authentication, Model model) {
         Person person = ((PersonDetails) authentication.getPrincipal()).getPerson();
-        //model.addAttribute("infoAboutPerson", person);
         getInfoAboutBook(person.getPersonId(), id, model);
 
         return "books/user/pageBook";
@@ -103,11 +120,7 @@ public class BooksController {
         if (journal  != null) {
             model.addAttribute("isBookBorrowed", true);
             Date dateEnd = journal.getDateEnd();
-            //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            //String formattedDate = sdf.format(dateEnd);
             model.addAttribute("dateEnd", dateEnd);
-            /*LocalDate localDate = LocalDate.now();
-            Date currentDate = java.sql.Date.valueOf(localDate);*/
             Date currentDate = new Date();
             Timestamp currentTimestamp = new Timestamp(currentDate.getTime());
             model.addAttribute("currentDate", currentTimestamp);
@@ -147,15 +160,10 @@ public class BooksController {
     @GetMapping("/admin/{id}/edit")
     public String bookEditPage(@PathVariable("id") int id, Model model) {
         Book editBook = bookService.findOne(id);
-        switch (editBook.getTypeBook().getTypeId()) {
-            case 1 -> {
-                editBook.setTypeName("ordinary");
-            }
-            case 2 -> {
-                editBook.setTypeName("rare");
-            }
-            case 3 -> {
-                editBook.setTypeName("unique");
+        List<TypeBook> types = typeBookService.findAll();
+        for (TypeBook type: types) {
+            if (type.getTypeId() == editBook.getTypeBook().getTypeId()) {
+                editBook.setTypeName(type.getTypeName());
             }
         }
         model.addAttribute("editBook", editBook);
@@ -165,53 +173,78 @@ public class BooksController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    public String updateInfoAboutBook(@ModelAttribute("editBook") @Valid Book editBook, BindingResult bindingResult, @PathVariable("id") int id) {
+    public String updateInfoAboutBook(@ModelAttribute("editBook") @Valid Book editBook, BindingResult bindingResult, @PathVariable("id") int id, Model model) {
         bookValidator.validate(editBook, bindingResult);
-        bookValidator.validateCountOfBooks(editBook.getNumberOfCopies(), bindingResult);
         if (bindingResult.hasErrors()) {
+            editBook.setBookId(id);
+            model.addAttribute("editBook", editBook);
             return "books/admin/editBook";
         }
         bookService.update(id, editBook);
         return "redirect:/books/admin/" + id;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/search")
     public String searchBooks(@RequestParam String query, Model model) {
+        if (query.isEmpty()) {
+            return "redirect:/books/admin";
+        }
+        List<Book> searchBooks = bookService.findByTitleIsStartingWith(query);
+        model.addAttribute("books", searchBooks);
+
+        return "books/admin/listOfBooks";
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("/search/user")
+    public String searchBooksForUser(@RequestParam String query, Model model) {
         if (query.isEmpty()) {
             return "redirect:/books";
         }
         List<Book> searchBooks = bookService.findByTitleIsStartingWith(query);
         model.addAttribute("books", searchBooks);
-        return "books/listOfBooks";
+
+        return "books/user/listOfBooks";
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public String deleteBook(@PathVariable("id") int id, Model model) {
         try {
+            Book book = bookService.findOne(id);
+            TypeBook typeBook = book.getTypeBook();
+            int countOfBooksWithThisType = typeBook.getBooks().size() - 1;
+            typeBook.setCountOfTypes(countOfBooksWithThisType);
+            typeBookService.update(typeBook.getTypeId(), typeBook);
             bookService.delete(id);
         } catch (JpaSystemException e) {
             model.addAttribute("hasThisBookBeenDeleted", false);
+            model.addAttribute("cause", "Cannot delete a book that has unreturned copies in the journal");
             getInfoAboutBookForAdmin(id, model);
             return "books/admin/pageBook";
-        }
-        return "redirect:/books";
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("hasThisBookBeenDeleted", false);
+            model.addAttribute("cause", "Foreign key constraint");
+            getInfoAboutBookForAdmin(id, model);
+            return "books/admin/pageBook";
+    }
+        return "redirect:/books/admin";
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/admin/entries/{id}")
+    public String deleteJournalEntriesByBookId(@PathVariable("id") int id, Model model) {
+        journalService.deleteByBookId(id);
+        getInfoAboutBookForAdmin(id, model);
+        return "books/admin/pageBook";
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/pageBookForPerson/{person_id}/{book_id}")
     public String pageBookForPerson(@PathVariable("person_id") int personId, @PathVariable("book_id") int bookId, Model model) {
         getInfoAboutBook(personId, bookId, model);
-
+        model.addAttribute("personId", personId);
         return "/books/admin/pageBookForPerson";
     }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/bookTypes")
-    public String pageBookTypes(Model model) {
-        List<TypeBook> bookTypes = typeBookService.findAll();
-        model.addAttribute("bookTypes", bookTypes);
-        return "/books/bookTypes";
-    }
-
 }

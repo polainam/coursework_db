@@ -1,6 +1,5 @@
 package ru.polaina.project1boot.repositories;
 
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +30,4 @@ public interface PeopleRepository extends JpaRepository<Person, Integer> {
 
     @Procedure("update_client")
     void update(int id, String username, String firstName, String lastName, String partherName, String seria, String number, String password);
-
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book types</title>
+    <style>
+        .header-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .button-spacing {
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+<a th:href="@{/people/admin/menu}">back</a>
+<br>
+<br>
+<a href="/bookTypes/new" class="button-spacing">Create</a>
+<br>
+<a href="/exportToExcel/bookTypes" class="button-spacing">Export to Excel</a>
+
+<div class="header-container">
+    <h3>Book Types</h3>
+</div>
+<table border="1" style="width: 50%; margin: auto; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th style="width: 15%; text-align: center;">Name</th>
+        <th style="width: 15%; text-align: center;">Count books</th>
+        <th style="width: 15%; text-align: center;">Fine</th>
+        <th style="width: 15%; text-align: center;">Book reading time</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${bookTypes}">
+        <td style="text-align: center;">
+            <a th:href="@{/bookTypes/{id}(id=${book.getTypeId()})}" th:text="${book.getTypeName()}"></a>
+        </td>
+        <td style="text-align: center;" th:text="${book.getCountOfTypes()}"></td>
+        <td style="text-align: center;" th:text="${book.getFine()}"></td>
+        <td style="text-align: center;" th:text="${book.getCountOfDaysToRead()}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

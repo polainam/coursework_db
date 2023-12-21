@@ -1,12 +1,9 @@
 package ru.polaina.project1boot.models;
 
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -18,10 +15,8 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int bookId;
 
-    /////////////////////////////////////////////
     @OneToMany(mappedBy = "book")
     private List<Journal> journalEntries;
-    ///////////////////////////////////////////////////
 
     @ManyToOne
     @JoinColumn(name = "type_id", referencedColumnName = "id")
@@ -34,20 +29,9 @@ public class Book {
     @Column(name = "name")
     private String title;
 
+    @Min(value = 0, message = "Count should be greater than or equal to 0")
     @Column(name = "cnt")
     private Integer numberOfCopies;
-
-    //сделать отношение
-/*    @Column(name = "type_id")
-    private String typeId;*/
-
-/*    @Column(name = "date_of_receiving")
-    @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date dateOfReceiving;*/
-
-/*    @Transient
-    private boolean isReturnTimeOverdue;*/
 
     public int getBookId() {
         return bookId;
@@ -56,14 +40,6 @@ public class Book {
     public void setBookId(int bookId) {
         this.bookId = bookId;
     }
-
-/*    public Person getPersonId() {
-        return personId;
-    }
-
-    public void setPersonId(Person personId) {
-        this.personId = personId;
-    }*/
 
     public String getTitle() {
         return title;
@@ -80,26 +56,6 @@ public class Book {
         this.journalEntries = journalEntries;
     }
 
-    /*    public Date getDateOfReceiving() {
-        return dateOfReceiving;
-    }
-
-    public void setDateOfReceiving(Date dateOfReceiving) {
-        this.dateOfReceiving = dateOfReceiving;
-    }
-
-    public boolean isReturnTimeOverdue() {
-        Date currentTime = new Timestamp(System.currentTimeMillis());
-        long differenceInMillis = currentTime.getTime() - dateOfReceiving.getTime();
-        long differenceInDays = TimeUnit.MILLISECONDS.toDays(differenceInMillis);
-
-        return differenceInDays > 10;
-    }*/
-
-/*    public void setReturnTimeOverdue(boolean returnTimeOverdue) {
-        isReturnTimeOverdue = returnTimeOverdue;
-    }*/
-
     public Integer getNumberOfCopies() {
         return numberOfCopies;
     }
@@ -115,14 +71,6 @@ public class Book {
     public void increaseNumberOfCopies() {
         setNumberOfCopies(getNumberOfCopies() + 1);
     }
-
-/*    public String getTypeId() {
-        return typeId;
-    }
-
-    public void setTypeId(String typeId) {
-        this.typeId = typeId;
-    }*/
 
     public TypeBook getTypeBook() {
         return typeBook;

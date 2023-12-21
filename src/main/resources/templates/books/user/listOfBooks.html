@@ -11,17 +11,11 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
     </style>
 </head>
 <body>
-<form th:method="GET" th:action="@{/books/search}">
+<form th:method="GET" th:action="@{/books/search/user}">
     <label>
         <input type="text" name="query" placeholder="Enter text to search: ">
     </label>
     <button type="submit" class="button-spacing">Search</button>
-    <div sec:authorize="hasRole('ADMIN')">
-        <br>
-        <a href="/people/admin" class="button-spacing">People</a>
-        <a href="/books/new" class="button-spacing">Create book</a>
-        <a href="/books/bookTypes" class="button-spacing">Book type</a>
-</div>
 </form>
 <br>
 <div sec:authorize="hasRole('USER')">

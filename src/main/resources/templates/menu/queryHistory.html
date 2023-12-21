@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Query History</title>
+</head>
+<body>
+<a th:href="@{/people/admin/menu}">back</a>
+<br>
+<h2>Query History</h2>
+<ul>
+    <li th:each="line : ${logLines}" th:text="${line}"></li>
+</ul>
+</body>
+</html>
